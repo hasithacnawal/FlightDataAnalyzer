@@ -38,6 +38,44 @@ namespace FlightDataAnalyzer.Services
 
             return flights;
         }
+
+        public List<FlightInfo> GetInconsistentFlightList()
+{
+            var flights = GetFlightInfo(); 
+            var inconsistentFlights = new List<FlightInfo>();
+
+            //Identifying flight chains by flight Registration Number
+            var flightchains = flights.GroupBy(f => f.FlightNumber);
+
+            foreach (var chain in flightchains)
+            {
+                // Sort by DepartureDatetime
+                var orderedFlights = chain
+                    .OrderBy(f => DateTime.TryParse(f.DepartureDatetime, out var dt) ? dt : DateTime.MinValue)
+                    .ToList();
+
+                // Only for the flight chains appeared multiple times
+                if (orderedFlights.Count > 1)
+                {
+                    for (int i = 0; i < orderedFlights.Count - 1; i++)
+                    {
+                        var currentFlight = orderedFlights[i];
+                        var nextFlight = orderedFlights[i + 1];
+
+                        // Check if the arrival airport of the current flight matches the departure airport of the next flight
+                        if (currentFlight.ArrivalAirport != nextFlight.DepartureAirport)
+                        {
+                            inconsistentFlights.Add(currentFlight);
+                            inconsistentFlights.Add(nextFlight); 
+                        }
+                    }
+
+                    Console.WriteLine($"Found {inconsistentFlights.Count} inconsistent flight chains.");
+                   
+                }
+            }
+            return inconsistentFlights.ToList(); 
+        }
     }
 }
 

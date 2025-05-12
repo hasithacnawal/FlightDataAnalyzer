@@ -1,0 +1,6 @@
+@FlightDataAnalyzer_HostAddress = http://localhost:5197
+
+GET {{FlightDataAnalyzer_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

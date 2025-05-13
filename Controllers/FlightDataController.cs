@@ -20,8 +20,14 @@ namespace FlightDataAnalyzer.Controllers
 
         }
 
+        /// <summary>
+        /// Retrieves all the flight chains from the CSV file with defined validations.
+        /// </summary>
+        /// <returns>
+        /// A standard API response containing a list of flight information by ignoring the missing data or corrupted data by validations.
+        /// </returns>
         [HttpGet]
-        public async Task<ActionResult<List<FlightInfo>>> GetFlights()
+        public async Task<IActionResult> GetFlights()
         {
             try
             {
@@ -66,8 +72,14 @@ namespace FlightDataAnalyzer.Controllers
 
         }
 
+        /// <summary>
+        /// Retrieves flight chains that contain inconsistencies, Logic: If the same flight (identified by the flight number) arrived in one airport and does not depart from the same airport ordery manner the scenario is identified as a inconsistancy
+        /// </summary>
+        /// <returns>
+        /// A standard API response containing a list of inconsistent flights or a message if none found.
+        /// </returns>
         [HttpGet("GetInconsistentFlightChains")]
-        public async Task<ActionResult<List<FlightInfo>>> GetInconsistentFlightChains()
+        public async Task<IActionResult> GetInconsistentFlightChains()
         {
 
             try

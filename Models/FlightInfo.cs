@@ -2,6 +2,10 @@
 
 namespace FlightDataAnalyzer.Models
 {
+
+    /// <summary>
+    /// Structured flight information.
+    /// </summary>
     public class FlightInfo
     {
         

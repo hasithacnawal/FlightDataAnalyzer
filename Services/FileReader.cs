@@ -3,9 +3,9 @@
     public class FileReader: IFileReader
     {
         
-        public Task<string[]> ReadAllLinesAsync(string path)
+        public async Task<string[]> ReadAllLinesAsync(string path)
         {
-            return File.ReadAllLinesAsync(path);
+            return await File.ReadAllLinesAsync(path);
         }
 
         public bool FileExists(string path)

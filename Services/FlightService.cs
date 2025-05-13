@@ -8,21 +8,24 @@ namespace FlightDataAnalyzer.Services
     public class FlightService : IFlightService
     {
         //file path on the server
-        private readonly string _csvPath = "flightdata.csv";
+        private readonly string _csvPath;
         private readonly ILogger<FlightService> _logger;
         private readonly IFileReader _fileReader;
 
-        public FlightService()
+       
+        public FlightService(IConfiguration configuration, ILogger<FlightService> logger, IFileReader fileReader)
         {
-        }
-
-        public FlightService(ILogger<FlightService> logger, IFileReader fileReader)
-        {
+            _csvPath = configuration["CsvSettings:Path"];
             _logger = logger;
             _fileReader = fileReader;
 
         }
+      
 
+        /// <summary>
+        /// Loads flight data from a CSV file, validates, and parses it.
+        /// </summary>
+        /// <returns>A tuple containing a list of valid flights and any parsing errors.</returns>
         public virtual async Task<(List<FlightInfo>,List<string> Errors)> GetFlightInfo()
         {
             var flights = new List<FlightInfo>();
@@ -112,6 +115,9 @@ namespace FlightDataAnalyzer.Services
             return (flights,errors);
         }
 
+        /// <summary>
+        /// Identifies flight chains with inconsistent timing or missing information.
+        /// </summary>
         public async Task<(List<FlightInfo>, List<string> Errors)> GetInconsistentFlightList()
 {
             var (flights,errors) = await GetFlightInfo();
@@ -131,10 +137,14 @@ namespace FlightDataAnalyzer.Services
 
                 foreach (var chain in flightchains)
                 {
-                    // Sort by DepartureDatetime
+                    // Sort by DepartureDatetime and remove duplicates
                     var orderedFlights = chain
-                        .OrderBy(f => DateTime.TryParse(f.DepartureDatetime, out var dt) ? dt : DateTime.MinValue)
-                        .ToList();
+                            .GroupBy(f => new { f.DepartureAirport, f.ArrivalAirport, f.DepartureDatetime })
+                            .Select(g => g.First()) // removing duplicate entries
+                            .OrderBy(f => DateTime.TryParse(f.DepartureDatetime, out var dt) ? dt : DateTime.MinValue)
+                            .ToList();
+
+                    
 
                     // Only for the flight chains appeared multiple times
                     if (orderedFlights.Count > 1)

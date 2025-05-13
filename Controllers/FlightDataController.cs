@@ -17,18 +17,19 @@ namespace FlightDataAnalyzer.Controllers
         }
 
         [HttpGet]
-        public ActionResult<List<FlightInfo>> GetFlights()
+        public async Task<ActionResult<List<FlightInfo>>> GetFlights()
         {
-            var flights = _flightService.GetFlightInfo();
+            var flights = await _flightService.GetFlightInfo();
+
             return Ok(flights);
         }
 
         private readonly ILogger<FlightDataController> _logger;
 
         [HttpGet("GetInconsistentFlightChains")]
-        public ActionResult<List<FlightInfo>> GetInconsistentFlightChains()
+        public async Task<ActionResult<List<FlightInfo>>> GetInconsistentFlightChains()
         {
-            var inconsistentFlights = _flightService.GetInconsistentFlightList();
+            var inconsistentFlights = await _flightService.GetInconsistentFlightList();
 
             if (inconsistentFlights.Any())
             {

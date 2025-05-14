@@ -7,15 +7,19 @@ namespace FlightDataAnalyzer.Services
 {
     public class FlightService : IFlightService
     {
-        //file path on the server
         private readonly string _csvPath;
         private readonly ILogger<FlightService> _logger;
         private readonly IFileReader _fileReader;
 
-       
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FlightService"/> class.
+        /// </summary>
+        /// <param name="configuration">The application configuration to read the CSV path.</param>
+        /// <param name="logger">Logger for capturing information and errors.</param>
+        /// <param name="fileReader">File reader abstraction for easier testing and file operations.</param>
         public FlightService(IConfiguration configuration, ILogger<FlightService> logger, IFileReader fileReader)
         {
-            _csvPath = configuration["CsvSettings:Path"];
+            _csvPath = configuration["CsvSettings:Path"]; //Configuraion path added for avoiding hardcoding
             _logger = logger;
             _fileReader = fileReader;
 
@@ -25,7 +29,8 @@ namespace FlightDataAnalyzer.Services
         /// <summary>
         /// Loads flight data from a CSV file, validates, and parses it.
         /// </summary>
-        /// <returns>A tuple containing a list of valid flights and any parsing errors.</returns>
+        /// <returns>A tuple containing a list of valid flights and any parsing errors.
+        /// </returns>
         public virtual async Task<(List<FlightInfo>,List<string> Errors)> GetFlightInfo()
         {
             var flights = new List<FlightInfo>();
@@ -116,8 +121,15 @@ namespace FlightDataAnalyzer.Services
         }
 
         /// <summary>
-        /// Identifies flight chains with inconsistent timing or missing information.
+        /// Analyzes the flight data and returns flights with inconsistent chains.
+        /// Inconsistencies are defined as flights in the same chain (same flight number) where
+        /// the arrival airport of one flight does not match the departure airport of the next.
         /// </summary>
+        /// <returns>
+        /// A tuple containing:
+        /// - A list of <see cref="FlightInfo"/> objects that are inconsistent.
+        /// - A list of error messages encountered during analysis.
+        /// </returns>
         public async Task<(List<FlightInfo>, List<string> Errors)> GetInconsistentFlightList()
 {
             var (flights,errors) = await GetFlightInfo();
